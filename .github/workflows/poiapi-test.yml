@@ -1,15 +1,12 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: POI Build & Test
+name: POI-Tests
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    paths: "api/poi/**"
+    paths:
+      - "apis/poi/**"
   workflow_dispatch:
+
 defaults:
   run:
     working-directory: "apis/poi"
@@ -21,26 +18,35 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 3.1.x
+        
     - name: Restore dependencies
       run: dotnet restore
+      #./apis/poi/web/poi.csproj
+      
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build
+      #--no-restore ./apis/poi/web/poi.csproj --configuration Release
+      
     - name: Unit Test
+      #run: dotnet test ./apis/poi/web/poi.csproj --filter "FullyQualifiedName~UnitTest" --logger "trx;LogFileName=UnitTestResults.trx" --results-directory ./apis/poi/web/TestResults
       run: dotnet test --filter "FullyQualifiedName~UnitTest" --logger "trx;LogFileName=UnitTestResults.trx" --results-directory ./TestResults
+      
     - name: Publish Test Reports
       uses: dorny/test-reporter@v1
       if: always()
       with:
-        name: UnitTestResults
+        name: TestResults
         path: ./apis/poi/TestResults/UnitTestResults.trx
         reporter: dotnet-trx
         fail-on-error: false
+
     - name: Create issue on failure
-      if: (failure() && github.event_name != 'pull_request') || success()
+      if: (failure() && github.event_name != 'pull_request')
       run: |
         body='
           ### Unit Test `failure`
@@ -57,6 +63,7 @@ jobs:
         gh issue create --title "${title}" --body "${body}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Create PR Comment 
       if: (failure() && github.event_name == 'pull_request') || success()
       run: |
