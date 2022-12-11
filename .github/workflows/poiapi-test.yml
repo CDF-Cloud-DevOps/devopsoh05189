@@ -39,3 +39,8 @@ jobs:
         path: ./apis/poi/TestResults/UnitTestResults.trx
         reporter: dotnet-trx
         fail-on-error: false
+    - name: Create issue on failure
+      if: failure() || success()
+      run: gh issue create --title "POI API new issue" --body "Thank you for opening this issue!. Generated from github action."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
