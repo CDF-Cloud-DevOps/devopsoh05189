@@ -36,6 +36,11 @@ jobs:
       #run: dotnet test ./apis/poi/web/poi.csproj --filter "FullyQualifiedName~UnitTest" --logger "trx;LogFileName=UnitTestResults.trx" --results-directory ./apis/poi/web/TestResults
       run: dotnet test --filter "FullyQualifiedName~UnitTest" --logger "trx;LogFileName=UnitTestResults.trx" --results-directory ./TestResults
       
+    - name: Coverallsapp
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+      
     - name: Publish Test Reports
       uses: dorny/test-reporter@v1
       if: always()
