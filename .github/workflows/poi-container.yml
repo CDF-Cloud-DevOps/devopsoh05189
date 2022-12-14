@@ -32,6 +32,7 @@ env:
   SLOT_NAME: staging
   ACR_IMAGES: devopsoh05189cr.azurecr.io/devopsoh/api-poi
   ACR_REGISTRY: devopsoh05189cr
+  POI_STAGING_URL: https://devopsoh05189poi-staging.azurewebsites.net/api/version/poi
 
 
 defaults:
@@ -92,3 +93,11 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: ${{ env.SLOT_NAME }}
           images: '${{ env.ACR_IMAGES }}:${{ github.run_id }}'
+      
+      # Validate staging
+      - name: Validate Staging
+        uses: jtalk/url-health-check-action@v3
+        with:
+          url: ${{ env.POI_STAGING_URL }}
+          max-attempts: 5
+          retry-delay: 20s
