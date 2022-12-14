@@ -63,7 +63,7 @@ jobs:
       
       ## Build image
       - name: Build image
-        run: az acr build --build-arg build_version={{ github.run_id }} --registry devopsoh05189cr --image devopsoh05189cr.azurecr.io/devopsoh/api-poi:${{ github.run_id }} .
+        run: az acr build --build-arg build_version=${{ github.run_id }} --registry devopsoh05189cr --image devopsoh05189cr.azurecr.io/devopsoh/api-poi:${{ github.run_id }} .
       
       - name: Azure logout
         run: |
