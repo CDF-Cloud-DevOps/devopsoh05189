@@ -34,12 +34,12 @@ env:
   ACR_IMAGES: devopsoh05189cr.azurecr.io/devopsoh/api-poi
   ACR_REGISTRY: devopsoh05189cr
   POI_STAGING_URL: https://devopsoh05189poi-staging.azurewebsites.net/api/version/poi
-  WORKING_DIR: apis/poi/web
+  #WORKING_DIR: apis/poi/web
 
 
 defaults:
   run:
-    working-directory: "${{ env.WORKING_DIR }}" #"apis/poi/web"
+    working-directory: "apis/poi/web"
     
 # Trigger
 on:
