@@ -27,7 +27,9 @@
 name: Build and deploy a container to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name  # set this to the name of your Azure Web App
+  AZURE_WEBAPP_NAME: devopsoh05189poi  # set this to the name of your Azure Web App
+  RESOURCE_GROUP: devopsoh05189rg
+  SLOT_NAME: staging
 
 
 defaults:
@@ -50,7 +52,8 @@ jobs:
     
     steps:
       ## Checkout
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       
       # Log into Azure 
       - name: Azure Login
@@ -60,6 +63,9 @@ jobs:
       
       ## Build image
       - name: Build image
-        run: az acr build --registry devopsoh05189cr --image devopsoh05189cr.azurecr.io/devopsoh/api-poi:${{ github.run_id }} .
+        run: az acr build --build-arg build_version={{ github.run_id }} --registry devopsoh05189cr --image devopsoh05189cr.azurecr.io/devopsoh/api-poi:${{ github.run_id }} .
       
+      - name: Azure logout
+        run: |
+          az logout
       
