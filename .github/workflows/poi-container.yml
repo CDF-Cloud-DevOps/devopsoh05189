@@ -30,6 +30,8 @@ env:
   AZURE_WEBAPP_NAME: devopsoh05189poi  # set this to the name of your Azure Web App
   RESOURCE_GROUP: devopsoh05189rg
   SLOT_NAME: staging
+  ACR_IMAGES: devopsoh05189cr.azurecr.io/devopsoh/api-poi
+  ACR_REGISTRY: devopsoh05189cr
 
 
 defaults:
@@ -63,9 +65,30 @@ jobs:
       
       ## Build image
       - name: Build image
-        run: az acr build --build-arg build_version=${{ github.run_id }} --registry devopsoh05189cr --image devopsoh05189cr.azurecr.io/devopsoh/api-poi:${{ github.run_id }} .
+        run: az acr build --build-arg build_version=${{ github.run_id }} --registry ${{ env.ACR_REGISTRY }} --image ${{ env.ACR_IMAGES }}:${{ github.run_id }} .
       
+      ## Log out of Azure
       - name: Azure logout
         run: |
           az logout
+         
+  ## Deploy Job       
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      # Azure Login
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       
+      # Deploy container image
+      - name: Deploy container image to App service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ env.SLOT_NAME }}
+          images: '${{ env.ACR_IMAGES }}:${{ github.run_id }}'
