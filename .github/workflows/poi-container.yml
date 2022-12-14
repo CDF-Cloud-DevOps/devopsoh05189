@@ -116,7 +116,6 @@ jobs:
              --slot staging \
              --target-slot production
              
-      - name: Azure Logout
+      - name: Azure logout
         run: |
-          az logout
-             
+          az logout          
