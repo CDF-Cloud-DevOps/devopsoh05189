@@ -26,6 +26,7 @@
 
 name: Build and deploy a container to an Azure Web App
 
+# Make chnages to your variable here
 env:
   AZURE_WEBAPP_NAME: devopsoh05189poi  # set this to the name of your Azure Web App
   RESOURCE_GROUP: devopsoh05189rg
@@ -33,12 +34,14 @@ env:
   ACR_IMAGES: devopsoh05189cr.azurecr.io/devopsoh/api-poi
   ACR_REGISTRY: devopsoh05189cr
   POI_STAGING_URL: https://devopsoh05189poi-staging.azurewebsites.net/api/version/poi
+  WORKING_DIR: apis/poi/web
 
 
 defaults:
   run:
-    working-directory: "apis/poi/web"
-
+    working-directory: "{{ env.WORKING_DIR }}" #"apis/poi/web"
+    
+# Trigger
 on:
   push:
     branches: [ "main" ]
@@ -51,6 +54,7 @@ jobs:
 
   ### Build the image using naming convention
   build:
+    name: Build Job
     runs-on: ubuntu-latest
     
     steps:
@@ -101,3 +105,18 @@ jobs:
           url: ${{ env.POI_STAGING_URL }}
           max-attempts: 5
           retry-delay: 20s
+      
+      # Deployment Swap
+      - name: Deployment Swap
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az webapp deployment slot swap -g ${{ env.RESOURCE_GROUP }} \
+             -n ${{ env.AZURE_WEBAPP_NAME }} \
+             --slot staging \
+             --target-slot production
+             
+      - name: Azure Logout
+        run: |
+          az logout
+             
