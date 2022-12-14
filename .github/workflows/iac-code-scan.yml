@@ -1,11 +1,16 @@
-name: IAC-Code-Scanning
+name: IaC-Code-Scanning
 
 on:
   pull_request:
     branches: [ "main" ]
-    paths: "iac/bicep/**"
+    paths:
+      - "iac/bicep/**"
   workflow_dispatch:
-  
+
+#defaults:
+  #run:
+    #working-directory: "iac/bicep"
+
 jobs:
   Code-Scanning:
     runs-on: ubuntu-latest
@@ -14,22 +19,31 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        
+
     - name: Run Gitleaks
       id: gitleaks
       uses: DariuszPorowski/github-action-gitleaks@v2
       with:
         source: "iac/bicep"
         report_format: "sarif"
+        #fail: false
         
-    - name: Get output from gitleaks step
+
+    # (optional) It's just to see outputs from the Action
+    - name: Get the output from the gitleaks step      
       run: |
         echo "exitcode: ${{ steps.gitleaks.outputs.exitcode }}"
         echo "result: ${{ steps.gitleaks.outputs.result }}"
         echo "output: ${{ steps.gitleaks.outputs.output }}"
         echo "command: ${{ steps.gitleaks.outputs.command }}"
         echo "report: ${{ steps.gitleaks.outputs.report }}"
-    
+        
     - name: Fail workflow if secret detected
-      if: steps.gitleaks.outputs.exitcode ==1
+      if: steps.gitleaks.outputs.exitcode == 1
       run: exit 1
+
+    #- name: Upload Gitleaks SARIF report to code scanning service
+    #  if: steps.gitleaks.outputs.exitcode == 1
+    #  uses: github/codeql-action/upload-sarif@v2
+    #  with:
+    #    sarif_file: ${{ steps.gitleaks.outputs.report }}
