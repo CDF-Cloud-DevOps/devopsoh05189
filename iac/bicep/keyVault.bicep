@@ -10,7 +10,7 @@ param containerRegistryAdminPassword string
 
 // https://docs.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults?tabs=bicep
 resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
-  name: '${resourcesPrefix}kv'
+  name: '${resourcesPrefix}kkv'
   location: location
   
   properties: {
